@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScreenTimeTracker Admin Dashboard</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏱️</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-main: #212529;
+            --text-muted: #6c757d;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --success: #10b981;
+            --danger: #ef4444;
+            --border: #e9ecef;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            background: var(--bg-color); 
+            color: var(--text-main);
+        }
+
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 20px 40px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .container { 
+            max-width: 1000px; 
+            margin: 40px auto; 
+            padding: 0 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+
+        /* Active Sessions Grid */
+        .active-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .active-card {
+            background: rgba(79, 70, 229, 0.05);
+            border: 1px solid rgba(79, 70, 229, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .active-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .active-card .status-dot {
+            height: 10px;
+            width: 10px;
+            background-color: var(--success);
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .active-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .active-timer {
+            font-family: monospace;
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 20px;
+            font-style: italic;
+        }
+
+        /* Table */
+        .controls { 
+            display: flex; 
+            justify-content: flex-end; 
+            margin-bottom: 15px; 
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+        }
+
+        th, td { 
+            padding: 14px 16px; 
+            text-align: left; 
+            border-bottom: 1px solid var(--border); 
+        }
+
+        th { 
+            background-color: #f8f9fa; 
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        th:hover { background-color: #e9ecef; }
+        
+        button { 
+            padding: 10px 20px; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        button:hover { 
+            background: var(--primary-hover); 
+            box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid white;
+        }
+        
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.1);
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Admin Dashboard</h1>
+    <button class="btn-outline" onclick="fetchDashboard()">Refresh Data</button>
+</div>
+
+<div class="container">
+    <!-- Active Sessions -->
+    <div class="card">
+        <h2>Active Tracking Sessions</h2>
+        <div id="activeGrid" class="active-grid">
+            <!-- Active cards populated here -->
+        </div>
+    </div>
+
+    <!-- History -->
+    <div class="card">
+        <div class="controls">
+            <button onclick="stopAllAndExport()" class="btn-outline" style="background-color: var(--danger); margin-right: 10px;">Stop All Sessions & Export</button>
+            <button onclick="exportData()">Export History to CSV</button>
+        </div>
+        <h2>Session History</h2>
+        
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th onclick="sortTable(0, 'string')">Username &#x21D5;</th>
+                    <th onclick="sortTable(1, 'number')">Active Time &#x21D5;</th>
+                    <th onclick="sortTable(2, 'date')">Date Completed &#x21D5;</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Data will be populated here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    let dashboardData = { activeUsers: {}, sessionHistory: [] };
+    let currentSort = { col: 2, asc: false }; // default sort by date descending
+    let tickerInterval;
+
+    async function fetchDashboard() {
+        try {
+            const response = await fetch('/api/dashboard');
+            dashboardData = await response.json();
+            renderActiveUsers();
+            sortTable(currentSort.col, 'auto'); // Re-sort and render
+        } catch (error) {
+            console.error('Error fetching dashboard:', error);
+        }
+    }
+
+    function renderActiveUsers() {
+        const grid = document.getElementById('activeGrid');
+        grid.innerHTML = '';
+        
+        const users = Object.keys(dashboardData.activeUsers);
+        
+        if (users.length === 0) {
+            grid.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1;">No active tracking sessions at the moment.</div>';
+            clearInterval(tickerInterval);
+            return;
+        }
+
+        users.forEach(username => {
+            const data = dashboardData.activeUsers[username];
+            
+            const card = document.createElement('div');
+            card.className = 'active-card';
+            
+            card.innerHTML = `
+                <div class="active-name"><span class="status-dot"></span>${username}</div>
+                <div class="active-timer" id="timer-${username}">00:00</div>
+                <div style="font-size: 0.8rem; color: #6c757d; margin-top: 5px;">Connection Duration</div>
+            `;
+            grid.appendChild(card);
+        });
+
+        startTickers();
+    }
+
+    function startTickers() {
+        clearInterval(tickerInterval);
+        tickerInterval = setInterval(() => {
+            Object.keys(dashboardData.activeUsers).forEach(username => {
+                const startTime = dashboardData.activeUsers[username].startTime;
+                const elapsed = Date.now() - startTime;
+                const el = document.getElementById(`timer-${username}`);
+                if (el) {
+                    el.textContent = formatHmsTimer(elapsed);
+                }
+            });
+        }, 1000);
+    }
+
+    function renderHistoryTable() {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+        
+        if (dashboardData.sessionHistory.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" class="empty-state">No historical sessions found.</td></tr>';
+            return;
+        }
+
+        dashboardData.sessionHistory.forEach(session => {
+            const tr = document.createElement('tr');
+            
+            const tdName = document.createElement('td');
+            tdName.textContent = session.username;
+            
+            const tdTime = document.createElement('td');
+            tdTime.textContent = formatHmsText(session.activeTimeMillis);
+            
+            const tdDate = document.createElement('td');
+            tdDate.textContent = new Date(session.timestamp).toLocaleString();
+            
+            tr.appendChild(tdName);
+            tr.appendChild(tdTime);
+            tr.appendChild(tdDate);
+            tbody.appendChild(tr);
+        });
+    }
+
+    function formatHmsText(millis) {
+        const totalSecs = Math.floor(millis / 1000);
+        const h = Math.floor(totalSecs / 3600);
+        const m = Math.floor((totalSecs % 3600) / 60);
+        const s = totalSecs % 60;
+        
+        if (h > 0) return `${h}h ${m}m ${s}s`;
+        if (m > 0) return `${m}m ${s}s`;
+        return `${s}s`;
+    }
+
+    function formatHmsTimer(millis) {
+        const totalSecs = Math.floor(millis / 1000);
+        const h = Math.floor(totalSecs / 3600);
+        const m = Math.floor((totalSecs % 3600) / 60).toString().padStart(2, '0');
+        const s = (totalSecs % 60).toString().padStart(2, '0');
+        
+        if (h > 0) return `${h}:${m}:${s}`;
+        return `${m}:${s}`;
+    }
+
+    function sortTable(colIndex, type) {
+        const asc = currentSort.col === colIndex ? !currentSort.asc : true;
+        currentSort = { col: colIndex, asc };
+
+        dashboardData.sessionHistory.sort((a, b) => {
+            let valA, valB;
+            if (colIndex === 0) {
+                valA = a.username.toLowerCase();
+                valB = b.username.toLowerCase();
+            } else if (colIndex === 1) {
+                valA = a.activeTimeMillis;
+                valB = b.activeTimeMillis;
+            } else {
+                valA = a.timestamp;
+                valB = b.timestamp;
+            }
+
+            if (valA < valB) return asc ? -1 : 1;
+            if (valA > valB) return asc ? 1 : -1;
+            return 0;
+        });
+
+        renderHistoryTable();
+    }
+
+    async function stopAllAndExport() {
+        if (!confirm('Are you sure you want to stop all active sessions?')) return;
+        
+        try {
+            const response = await fetch('/stopAll', { method: 'POST' });
+            if (response.ok) {
+                await fetchDashboard();
+                exportData();
+            } else {
+                alert('Failed to stop sessions.');
+            }
+        } catch (err) {
+            console.error('Error stopping sessions:', err);
+            alert('Error stopping sessions.');
+        }
+    }
+
+    function exportData() {
+        window.location.href = '/export';
+    }
+
+    // Initial load and auto-refresh every 10 seconds
+    fetchDashboard();
+    setInterval(fetchDashboard, 10000);
+</script>
+
+</body>
+</html>

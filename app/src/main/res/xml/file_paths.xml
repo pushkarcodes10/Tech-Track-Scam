@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--
+        Matches context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
+        i.e. Android/data/APP_PACKAGE_NAME/files/Documents, where every
+        generated CSV report permanently lives.
+    -->
+    <external-files-path
+        name="exported_reports"
+        path="Documents/" />
+</paths>
