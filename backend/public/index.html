@@ -238,8 +238,6 @@
 
     function renderActiveUsers() {
         const grid = document.getElementById('activeGrid');
-        grid.innerHTML = '';
-        
         const users = Object.keys(dashboardData.activeUsers);
         
         if (users.length === 0) {
@@ -248,19 +246,30 @@
             return;
         }
 
-        users.forEach(username => {
-            const data = dashboardData.activeUsers[username];
-            
-            const card = document.createElement('div');
-            card.className = 'active-card';
-            
-            card.innerHTML = `
-                <div class="active-name"><span class="status-dot"></span>${username}</div>
-                <div class="active-timer" id="timer-${username}">00:00</div>
-                <div style="font-size: 0.8rem; color: #6c757d; margin-top: 5px;">Connection Duration</div>
-            `;
-            grid.appendChild(card);
-        });
+        // Only rebuild DOM if the set of users changed
+        const existingTimers = grid.querySelectorAll('.active-timer');
+        const existingUserIds = new Set(Array.from(existingTimers).map(el => el.id.replace('timer-', '')));
+        const newUserIds = new Set(users);
+        const needsRebuild = existingUserIds.size !== newUserIds.size || 
+            [...existingUserIds].some(id => !newUserIds.has(id));
+
+        if (needsRebuild) {
+            grid.innerHTML = '';
+            users.forEach(username => {
+                const data = dashboardData.activeUsers[username];
+                const elapsed = Date.now() - data.startTime;
+                
+                const card = document.createElement('div');
+                card.className = 'active-card';
+                
+                card.innerHTML = `
+                    <div class="active-name"><span class="status-dot"></span>${username}</div>
+                    <div class="active-timer" id="timer-${username}">${formatHmsTimer(elapsed)}</div>
+                    <div style="font-size: 0.8rem; color: #6c757d; margin-top: 5px;">Connection Duration</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
 
         startTickers();
     }
