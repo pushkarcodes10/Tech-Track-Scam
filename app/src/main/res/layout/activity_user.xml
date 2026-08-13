@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="User Page"
+        android:text="@string/title_welcome"
         android:textColor="@color/black"
         android:textSize="24sp"
         android:textStyle="bold"
@@ -24,7 +24,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
-        android:text="Enter your name and start a tracked session. You can leave the app once tracking begins."
+        android:text="@string/subtitle_welcome"
         android:textColor="#666666"
         android:textSize="13sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -37,7 +37,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:hint="User Name"
+        android:hint="@string/hint_user_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvSubtitle">
@@ -56,49 +56,36 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Usage Access permission: checking..."
+        android:text="@string/label_permission_checking"
         android:textColor="#666666"
         android:textSize="13sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tilUserName" />
 
+    <TextView
+        android:id="@+id/tvSessionStatus"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textColor="#444444"
+        android:textSize="13sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvPermissionStatus"
+        tools:text="Tracking active for User." />
+
     <Button
         android:id="@+id/btnStartTracking"
         android:layout_width="0dp"
         android:layout_height="52dp"
         android:layout_marginTop="20dp"
-        android:text="Start Tracking"
+        android:text="@string/btn_start_session"
         android:textAllCaps="false"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvPermissionStatus" />
-
-    <TextView
-        android:id="@+id/tvSessionStatus"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:background="@color/grey_light"
-        android:padding="12dp"
-        android:textSize="13sp"
-        android:visibility="gone"
-        tools:visibility="visible"
-        tools:text="Tracking active for John Doe. You can leave the app; a notification will keep the session running."
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnStartTracking" />
-
-    <Button
-        android:id="@+id/btnOpenAdmin"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        style="@style/Widget.Material3.Button.TextButton"
-        android:text="Go to Admin Page"
-        android:textAllCaps="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/tvSessionStatus" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

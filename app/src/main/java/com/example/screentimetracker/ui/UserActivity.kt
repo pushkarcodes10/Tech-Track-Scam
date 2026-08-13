@@ -5,11 +5,11 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.example.screentimetracker.R
 import com.example.screentimetracker.databinding.ActivityUserBinding
 import com.example.screentimetracker.service.ScreenTimeForegroundService
 import com.example.screentimetracker.util.TrackingPrefs
@@ -40,7 +40,6 @@ class UserActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.btnStartTracking.setOnClickListener { onStartTrackingClicked() }
-        binding.btnOpenAdmin.visibility = View.GONE
     }
 
     override fun onResume() {
@@ -57,32 +56,30 @@ class UserActivity : AppCompatActivity() {
     private fun refreshPermissionStatusLabel() {
         val granted = UsageAccessHelper.hasUsageAccess(this)
         binding.tvPermissionStatus.text = if (granted) {
-            "Usage Access permission: granted \u2713"
+            getString(R.string.label_permission_granted)
         } else {
-            "Usage Access permission: not granted"
+            getString(R.string.label_permission_not_granted)
         }
     }
 
     private fun refreshActiveSessionState() {
         if (TrackingPrefs.isTracking(this)) {
             val userName = TrackingPrefs.getUserName(this)
-            binding.tvSessionStatus.visibility = View.VISIBLE
-            binding.tvSessionStatus.text =
-                "Tracking active for $userName. You can leave the app -- a " +
-                    "notification will keep the session running in the background."
+            binding.tvSessionStatus.visibility = android.view.View.VISIBLE
+            binding.tvSessionStatus.text = getString(R.string.label_tracking_active, userName)
             binding.btnStartTracking.isEnabled = false
-            binding.btnStartTracking.text = "Tracking In Progress"
+            binding.btnStartTracking.text = getString(R.string.btn_tracking_in_progress)
         } else {
-            binding.tvSessionStatus.visibility = View.GONE
+            binding.tvSessionStatus.visibility = android.view.View.GONE
             binding.btnStartTracking.isEnabled = true
-            binding.btnStartTracking.text = "Start Tracking"
+            binding.btnStartTracking.text = getString(R.string.btn_start_tracking)
         }
     }
 
     private fun onStartTrackingClicked() {
         val userName = binding.etUserName.text?.toString()?.trim().orEmpty()
         if (userName.isEmpty()) {
-            binding.tilUserName.error = "Please enter your name"
+            binding.tilUserName.error = getString(R.string.error_name_required)
             return
         }
         binding.tilUserName.error = null
@@ -110,7 +107,7 @@ class UserActivity : AppCompatActivity() {
         if (!UsageAccessHelper.hasUsageAccess(this)) {
             Toast.makeText(
                 this,
-                "Please enable Usage Access for this app, then return here.",
+                getString(R.string.toast_enable_usage_access),
                 Toast.LENGTH_LONG
             ).show()
             awaitingUsageAccessResult = true
@@ -133,6 +130,6 @@ class UserActivity : AppCompatActivity() {
         }
 
         refreshActiveSessionState()
-        Toast.makeText(this, "Welcome $userName", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.toast_welcome, userName), Toast.LENGTH_SHORT).show()
     }
 }

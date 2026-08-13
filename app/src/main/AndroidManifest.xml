@@ -25,15 +25,20 @@
         android:theme="@style/Theme.ScreenTimeTracker"
         android:usesCleartextTraffic="true">
 
-        <!-- Launcher: main user activity -->
+        <!-- Launcher: welcome / role selection screen -->
         <activity
-            android:name=".ui.UserActivity"
+            android:name=".ui.RoleSelectionActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- User tracking screen, started from RoleSelectionActivity -->
+        <activity
+            android:name=".ui.UserActivity"
+            android:exported="false" />
 
         <service
             android:name=".service.ScreenTimeForegroundService"
